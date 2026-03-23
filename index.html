@@ -1470,18 +1470,25 @@ function navigateTo(screenId, animation='slide') {
   // Handle tab bar visibility
   const tabScreens = ['screen-home','screen-search','screen-bookings','screen-profile'];
   const isTabScreen = tabScreens.includes(screenId);
+  const currentIsTab = tabScreens.includes(current);
   document.getElementById('tab-bar').style.display = isTabScreen ? 'flex' : 'none';
 
-  // Animate out current
+  // Always remove active from current screen first
+  currentEl.classList.remove('active');
+
   if (animation === 'fade') {
-    currentEl.classList.remove('active');
+    // Fade: just swap active, no slide
     nextEl.classList.remove('fade');
     nextEl.classList.add('active');
   } else if (animation === 'slide-up') {
-    currentEl.classList.add('prev');
+    // Slide-up modal: push non-tab screens left, tab screens just hide
+    if (!currentIsTab) currentEl.classList.add('prev');
     nextEl.classList.add('active');
   } else {
-    currentEl.classList.add('prev');
+    // Normal slide-right: push non-tab screens left, tab screens just hide
+    if (!currentIsTab) {
+      currentEl.classList.add('prev');
+    }
     nextEl.classList.remove('prev');
     nextEl.classList.add('active');
   }
@@ -1501,9 +1508,13 @@ function goBack() {
   const prevEl = document.getElementById(prev);
   if (!currentEl || !prevEl) return;
 
-  currentEl.classList.remove('active');
-  currentEl.classList.remove('prev');
-  prevEl.classList.remove('prev');
+  // Remove all transition classes from the screen being dismissed
+  currentEl.classList.remove('active', 'prev');
+
+  // Ensure the returning screen is fully clean before making it active
+  prevEl.classList.remove('prev', 'active');
+  // Force a reflow so the removal of 'active' is committed before re-adding
+  void prevEl.offsetWidth;
   prevEl.classList.add('active');
 
   // Restore status bar
