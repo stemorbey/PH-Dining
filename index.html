@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Heathcote Dining — Interactive Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset & Base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; }
+
+/* ─── Phone Shell ──────────────────────────────────────────────────────────── */
+#phone {
+  width: 393px;
+  height: 852px;
+  background: #FDFAF5;
+  border-radius: 50px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+  display: flex;
+  flex-direction: column;
+}
+/* Status bar */
+#status-bar {
+  height: 50px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px 0;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+#status-bar .time { font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; color: #1E120E; }
+#status-bar .icons { display: flex; gap: 6px; align-items: center; }
+#status-bar .icons svg { width: 16px; height: 16px; }
+.status-dark #status-bar .time, .status-dark #status-bar .icons svg path { color: #FDFAF5; fill: #FDFAF5; }
+
+/* ─── Screen Container ─────────────────────────────────────────────────────── */
+#screen-stack {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  background: #FDFAF5;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.screen.active { transform: translateX(0); }
+.screen.prev { transform: translateX(-30%); }
+.screen.slide-up { transform: translateY(100%); }
+.screen.slide-up.active { transform: translateY(0); }
+.screen.fade { opacity: 0; transform: translateX(0); }
+.screen.fade.active { opacity: 1; }
+
+/* ─── Tab Bar ──────────────────────────────────────────────────────────────── */
+#tab-bar {
+  height: 82px;
+  background: #FDFAF5;
+  border-top: 0.5px solid #E5E0D8;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  flex-shrink: 0;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: opacity 0.15s;
+}
+.tab-item:active { opacity: 0.6; }
+.tab-item svg { width: 24px; height: 24px; }
+.tab-item span { font-size: 10px; font-weight: 500; color: #9B9189; letter-spacing: 0.2px; }
+.tab-item.active span { color: #BA9470; }
+.tab-item.active svg path, .tab-item.active svg rect, .tab-item.active svg circle { fill: #BA9470; }
+.tab-item svg path, .tab-item svg rect { fill: #9B9189; }
+
+/* ─── Design Tokens ────────────────────────────────────────────────────────── */
+:root {
+  --cream: #FDFAF5;
+  --cream-dark: #F5F0E8;
+  --charcoal: #1E120E;
+  --copper: #BA9470;
+  --copper-light: rgba(186,148,112,0.15);
+  --copper-border: rgba(186,148,112,0.3);
+  --muted: #7A6E66;
+  --border: #E5E0D8;
+  --surface: #F7F3EE;
+  --dark-overlay: rgba(20,10,6,0.7);
+}
+
+/* ─── Typography ───────────────────────────────────────────────────────────── */
+.serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+.serif-italic { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; }
+.sans { font-family: 'DM Sans', sans-serif; }
+
+/* ─── Shared Components ────────────────────────────────────────────────────── */
+.screen-header {
+  display: flex;
+  align-items: center;
+  padding: 58px 20px 14px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--cream);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.back-btn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.back-btn:active { background: var(--cream-dark); }
+.back-btn svg { width: 20px; height: 20px; }
+.header-title-wrap { flex: 1; text-align: center; }
+.header-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--charcoal); }
+.header-title-italic { font-style: italic; color: var(--copper); }
+.header-spacer { width: 36px; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.section-label-sub { font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; margin-top: 3px; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  font-size: 13px; font-weight: 400; color: var(--charcoal);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--cream);
+  user-select: none;
+}
+.chip.active {
+  background: var(--copper);
+  border-color: var(--copper);
+  color: var(--cream);
+}
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.star-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--copper);
+  color: white;
+  font-size: 11px; font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+.rosette-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid rgba(253,250,245,0.5);
+  color: rgba(253,250,245,0.85);
+  font-size: 11px; font-weight: 400;
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.btn-primary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--copper);
+  color: var(--cream);
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.3px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn-primary:active { opacity: 0.85; transform: scale(0.98); }
+
+.btn-outline {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: transparent;
+  color: var(--copper);
+  border: 1px solid var(--copper);
+  border-radius: 12px;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s;
+}
+.btn-outline:active { background: var(--copper-light); }
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  background: var(--cream);
+  border-top: 0.5px solid var(--border);
+  padding: 12px 20px 16px;
+}
+
+/* ─── SCREEN: ONBOARDING ───────────────────────────────────────────────────── */
+#screen-onboarding {
+  background: #1A0F0A;
+}
+#screen-onboarding .hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.55;
+}
+#screen-onboarding .gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(20,10,6,0.1) 0%, rgba(20,10,6,0.5) 45%, rgba(20,10,6,0.95) 100%);
+}
+#screen-onboarding .content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 28px;
+}
+#screen-onboarding .logo-wrap {
+  padding-top: 60px;
+  display: flex;
+  justify-content: center;
+}
+#screen-onboarding .logo-text {
+  text-align: center;
+}
+#screen-onboarding .logo-flower {
+  width: 56px; height: 56px;
+  margin: 0 auto 8px;
+  opacity: 0.9;
+}
+#screen-onboarding .logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 400;
+  color: rgba(253,250,245,0.9);
+  letter-spacing: 2px;
+  text-transform: lowercase;
+}
+#screen-onboarding .logo-dining {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--copper);
+  display: block;
+  margin-top: 2px;
+}
+#screen-onboarding .bottom {
+  margin-top: auto;
+  padding-bottom: 36px;
+}
+#screen-onboarding .pills {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+#screen-onboarding .pill {
+  border: 1px solid rgba(186,148,112,0.5);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px; font-weight: 500;
+  color: rgba(253,250,245,0.8);
+}
+#screen-onboarding h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 44px; font-weight: 600;
+  color: #FDFAF5;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+#screen-onboarding h1 em {
+  font-style: italic;
+  color: var(--copper);
+}
+#screen-onboarding p {
+  font-size: 14px; font-weight: 400;
+  color: rgba(253,250,245,0.7);
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+#screen-onboarding .divider {
+  height: 1px;
+  background: rgba(253,250,245,0.15);
+  margin-bottom: 18px;
+}
+#screen-onboarding .features {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 28px;
+}
+#screen-onboarding .feature {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: rgba(253,250,245,0.8);
+}
+#screen-onboarding .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--copper);
+  flex-shrink: 0;
+}
+#screen-onboarding .cta {
+  background: var(--copper);
+  color: #FDFAF5;
+  border: none;
+  border-radius: 14px;
+  padding: 17px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px; font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  margin-bottom: 14px;
+  transition: opacity 0.15s;
+}
+#screen-onboarding .cta:active { opacity: 0.85; }
+#screen-onboarding .signin {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(253,250,245,0.5);
+  cursor: pointer;
+  padding: 6px;
+}
+
+/* ─── SCREEN: HOME ─────────────────────────────────────────────────────────── */
+#screen-home .home-header {
+  padding: 56px 20px 16px;
+  background: var(--cream);
+}
+#screen-home .greeting {
+  font-size: 11px; font-weight: 500; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 4px;
+}
+#screen-home .brand-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+#screen-home .brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 400;
+  color: var(--charcoal);
+  letter-spacing: 0.5px;
+}
+#screen-home .brand-name strong { font-weight: 600; }
+#screen-home .brand-name span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--copper);
+  margin-left: 6px;
+}
+#screen-home .logo-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+#screen-home .logo-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+.section-header-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 0 20px;
+  margin-bottom: 14px;
+}
+.section-title-serif {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600;
+  color: var(--charcoal);
+}
+.section-title-serif em { font-style: italic; color: var(--copper); }
+.section-count { font-size: 13px; color: var(--muted); }
+
+/* Featured cards horizontal scroll */
+.featured-scroll {
+  display: flex;
+  gap: 14px;
+  padding: 0 20px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.featured-scroll::-webkit-scrollbar { display: none; }
+.featured-card {
+  flex-shrink: 0;
+  width: 280px; height: 340px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.featured-card:active { transform: scale(0.97); }
+.featured-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.featured-card .overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 30%, rgba(20,10,6,0.85) 100%);
+}
+.featured-card .card-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 18px;
+}
+.featured-card .badges { display: flex; gap: 6px; margin-bottom: 8px; }
+.featured-card .card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600;
+  color: #FDFAF5;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.featured-card .card-loc {
+  font-size: 12px; color: rgba(253,250,245,0.75);
+  margin-bottom: 12px;
+}
+.featured-card .exp-tag {
+  display: inline-block;
+  border: 1px solid rgba(186,148,112,0.7);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 10px; font-weight: 500;
+  color: rgba(253,250,245,0.85);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Restaurant list */
+.restaurant-list { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+.restaurant-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.restaurant-row:active { background: var(--cream-dark); }
+.restaurant-row img {
+  width: 64px; height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.restaurant-row .info { flex: 1; min-width: 0; }
+.restaurant-row .r-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-weight: 600;
+  color: var(--charcoal);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.restaurant-row .r-loc { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.restaurant-row .r-exp { font-size: 11px; color: var(--copper); font-weight: 500; }
+.restaurant-row .r-stars { display: flex; gap: 4px; align-items: center; }
+.restaurant-row .chevron { color: var(--muted); flex-shrink: 0; }
+
+/* ─── SCREEN: SEARCH ───────────────────────────────────────────────────────── */
+#screen-search .search-header {
+  padding: 56px 20px 16px;
+  background: var(--cream);
+  border-bottom: 0.5px solid var(--border);
+}
+#screen-search .search-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 14px;
+}
+#screen-search .search-title em { font-style: italic; color: var(--copper); }
+.search-input-wrap {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.search-input-wrap svg { width: 18px; height: 18px; flex-shrink: 0; }
+.search-input-wrap input {
+  flex: 1; border: none; background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; color: var(--charcoal);
+  outline: none;
+}
+.search-input-wrap input::placeholder { color: var(--muted); }
+.filter-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.filter-row::-webkit-scrollbar { display: none; }
+
+.results-section { padding: 16px 20px 0; }
+.results-label { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+
+/* ─── SCREEN: RESTAURANT DETAIL ────────────────────────────────────────────── */
+.detail-hero {
+  position: relative;
+  height: 340px;
+  flex-shrink: 0;
+}
+.detail-hero img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.detail-hero .overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(20,10,6,0.2) 0%, rgba(20,10,6,0.65) 100%);
+}
+.detail-hero .back-float {
+  position: absolute;
+  top: 56px; left: 16px;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(30,18,14,0.55);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.15s;
+}
+.detail-hero .back-float:active { background: rgba(30,18,14,0.8); }
+.detail-hero .back-float svg { width: 20px; height: 20px; }
+.detail-hero .hero-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 20px;
+  background: rgba(20,10,6,0.55);
+}
+.detail-hero .hero-badges { display: flex; gap: 8px; margin-bottom: 10px; }
+.detail-hero .hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 600;
+  color: #FDFAF5;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.detail-hero .hero-loc {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 13px; color: rgba(253,250,245,0.8);
+}
+
+.detail-body { padding: 0 20px 20px; }
+.detail-section { padding: 20px 0; border-bottom: 0.5px solid var(--border); }
+.detail-section:last-child { border-bottom: none; }
+.detail-section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 10px;
+}
+.detail-section-title em { font-style: italic; color: var(--copper); }
+.detail-about { font-size: 14px; line-height: 1.75; color: var(--charcoal); }
+
+/* Experience card */
+.exp-card {
+  border-radius: 14px; overflow: hidden;
+  height: 200px; position: relative;
+  cursor: pointer;
+}
+.exp-card img { width: 100%; height: 100%; object-fit: cover; }
+.exp-card .overlay {
+  position: absolute; inset: 0;
+  background: rgba(20,10,6,0.62);
+}
+.exp-card .content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 18px;
+}
+.exp-card .exp-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600;
+  color: #FDFAF5;
+  margin-bottom: 4px; line-height: 1.3;
+}
+.exp-card .exp-meta { font-size: 12px; color: rgba(253,250,245,0.7); margin-bottom: 12px; }
+.exp-card .exp-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid rgba(186,148,112,0.7);
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 11px; font-weight: 500;
+  color: rgba(253,250,245,0.9);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Chef row */
+.chef-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chef-row:active { background: var(--cream-dark); }
+.chef-row img {
+  width: 64px; height: 64px;
+  border-radius: 32px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.chef-row .chef-info { flex: 1; }
+.chef-row .chef-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600;
+  color: var(--charcoal);
+}
+.chef-row .chef-title { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.chef-row .chef-acc { font-size: 12px; color: var(--copper); font-weight: 500; }
+
+/* Map placeholder */
+.map-placeholder {
+  height: 200px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #E8E3DC;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  position: relative;
+}
+.map-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+.map-placeholder .map-pin-overlay {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: rgba(253,250,245,0.92);
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+.map-placeholder .map-pin-overlay span { font-size: 12px; color: var(--charcoal); font-weight: 500; }
+.address-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--muted);
+}
+.address-row .directions { color: var(--copper); font-weight: 500; margin-left: auto; cursor: pointer; }
+
+/* Review cards */
+.review-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+.review-quote-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px; font-weight: 600;
+  color: var(--copper);
+  line-height: 0.8;
+  margin-bottom: 8px;
+  display: block;
+}
+.review-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 17px; line-height: 1.6;
+  color: var(--charcoal);
+  margin-bottom: 16px;
+}
+.review-footer { display: flex; align-items: center; gap: 10px; }
+.review-pub-badge {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  background: var(--copper-light);
+  border: 1px solid var(--copper-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  color: var(--copper);
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.review-meta { flex: 1; }
+.review-pub { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+.review-author { font-size: 12px; color: var(--muted); }
+.review-rating { font-size: 13px; color: var(--copper); letter-spacing: 1px; }
+
+/* ─── SCREEN: CHEF ─────────────────────────────────────────────────────────── */
+.chef-hero {
+  height: 320px; position: relative; flex-shrink: 0;
+}
+.chef-hero img { width: 100%; height: 100%; object-fit: cover; }
+.chef-hero .overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(20,10,6,0.15), rgba(20,10,6,0.75));
+}
+.chef-hero .back-float {
+  position: absolute; top: 56px; left: 16px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(30,18,14,0.55);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 10;
+}
+.chef-hero .back-float svg { width: 20px; height: 20px; }
+.chef-hero .hero-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 20px;
+}
+.chef-hero .chef-hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px; font-weight: 600;
+  color: #FDFAF5; line-height: 1.2; margin-bottom: 4px;
+}
+.chef-hero .chef-hero-title { font-size: 13px; color: rgba(253,250,245,0.8); margin-bottom: 8px; }
+.chef-hero .chef-hero-acc {
+  display: inline-block;
+  background: var(--copper-light);
+  border: 1px solid var(--copper-border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px; font-weight: 500;
+  color: var(--copper);
+}
+.chef-body { padding: 20px; }
+.chef-bio {
+  font-size: 14px; line-height: 1.8;
+  color: var(--charcoal);
+  margin-bottom: 20px;
+}
+.chef-restaurant-btn {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chef-restaurant-btn:active { background: var(--cream-dark); }
+.chef-restaurant-btn img {
+  width: 56px; height: 56px;
+  border-radius: 8px; object-fit: cover;
+}
+.chef-restaurant-btn .info { flex: 1; }
+.chef-restaurant-btn .label { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px; }
+.chef-restaurant-btn .name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-weight: 600; color: var(--charcoal);
+}
+
+/* ─── SCREEN: EXPERIENCE ───────────────────────────────────────────────────── */
+.exp-detail-hero {
+  height: 300px; position: relative; flex-shrink: 0;
+}
+.exp-detail-hero img { width: 100%; height: 100%; object-fit: cover; }
+.exp-detail-hero .overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(20,10,6,0.15), rgba(20,10,6,0.75));
+}
+.exp-detail-hero .back-float {
+  position: absolute; top: 56px; left: 16px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(30,18,14,0.55);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 10;
+}
+.exp-detail-hero .back-float svg { width: 20px; height: 20px; }
+.exp-detail-hero .hero-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 20px;
+}
+.exp-detail-hero .exp-hero-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600;
+  color: #FDFAF5; line-height: 1.2; margin-bottom: 6px;
+}
+.exp-detail-hero .exp-hero-tag {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px; color: var(--copper);
+}
+.exp-body { padding: 20px; }
+.exp-meta-row {
+  display: flex; gap: 12px;
+  margin-bottom: 20px;
+}
+.exp-meta-pill {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.exp-meta-pill .meta-label { font-size: 10px; color: var(--muted); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+.exp-meta-pill .meta-val { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+.exp-desc { font-size: 14px; line-height: 1.8; color: var(--charcoal); margin-bottom: 20px; }
+.includes-list { display: flex; flex-direction: column; gap: 10px; }
+.include-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; color: var(--charcoal);
+}
+.include-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--copper); flex-shrink: 0;
+}
+
+/* ─── SCREEN: BOOKINGS ─────────────────────────────────────────────────────── */
+.bookings-header {
+  padding: 56px 20px 0;
+  background: var(--cream);
+}
+.bookings-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 16px;
+}
+.bookings-title em { font-style: italic; color: var(--copper); }
+.tab-switcher {
+  display: flex;
+  border-bottom: 0.5px solid var(--border);
+}
+.tab-switch {
+  flex: 1; text-align: center;
+  padding: 10px;
+  font-size: 14px; font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab-switch.active {
+  color: var(--copper);
+  border-bottom-color: var(--copper);
+}
+.bookings-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.booking-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.booking-card .booking-img-wrap { position: relative; height: 120px; }
+.booking-card .booking-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.booking-card .booking-img-wrap .status-badge {
+  position: absolute; top: 10px; right: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.status-confirmed { background: rgba(34,197,94,0.15); color: #16A34A; border: 1px solid rgba(34,197,94,0.3); }
+.status-completed { background: rgba(186,148,112,0.15); color: var(--copper); border: 1px solid var(--copper-border); }
+.booking-card .booking-info { padding: 14px; }
+.booking-card .booking-rest {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600;
+  color: var(--charcoal); margin-bottom: 4px;
+}
+.booking-card .booking-exp { font-size: 12px; color: var(--copper); font-weight: 500; margin-bottom: 10px; }
+.booking-card .booking-meta {
+  display: flex; gap: 16px;
+  font-size: 12px; color: var(--muted);
+  margin-bottom: 12px;
+}
+.booking-card .booking-meta span { display: flex; align-items: center; gap: 4px; }
+.booking-card .view-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: 1px solid var(--copper);
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 13px; font-weight: 500;
+  color: var(--copper);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.booking-card .view-btn:active { background: var(--copper-light); }
+
+/* ─── SCREEN: REQUEST BOOKING ──────────────────────────────────────────────── */
+.booking-req-header {
+  padding: 56px 20px 16px;
+  background: var(--cream);
+  border-bottom: 0.5px solid var(--border);
+}
+.booking-req-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 600;
+  color: var(--charcoal);
+}
+.booking-req-title em { font-style: italic; color: var(--copper); }
+.booking-req-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.concierge-card {
+  background: var(--charcoal);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 20px;
+  text-align: center;
+}
+.concierge-card .phone-icon {
+  width: 56px; height: 56px;
+  background: rgba(186,148,112,0.2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+}
+.concierge-card .phone-icon svg { width: 26px; height: 26px; }
+.concierge-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600;
+  color: #FDFAF5; margin-bottom: 8px;
+}
+.concierge-card h3 em { font-style: italic; color: var(--copper); }
+.concierge-card p { font-size: 13px; color: rgba(253,250,245,0.7); line-height: 1.7; margin-bottom: 20px; }
+.concierge-card .call-btn {
+  background: var(--copper);
+  color: #FDFAF5;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 600;
+  width: 100%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.15s;
+}
+.concierge-card .call-btn:active { opacity: 0.85; }
+.steps-section { padding: 0 20px 20px; }
+.steps-title { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.step-item { display: flex; gap: 14px; margin-bottom: 16px; }
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--copper-light);
+  border: 1px solid var(--copper-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--copper);
+  flex-shrink: 0;
+}
+.step-info .step-label { font-size: 14px; font-weight: 500; color: var(--charcoal); margin-bottom: 2px; }
+.step-info .step-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.assurance-card {
+  margin: 0 20px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.assurance-card svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+.assurance-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* ─── SCREEN: PREFERENCES ──────────────────────────────────────────────────── */
+.pref-intro {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 20px;
+}
+.pref-intro svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+.pref-intro p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.pref-section { padding: 0 20px 20px; }
+.pref-section-title { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.pref-section-sub { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.toggle-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.toggle-row {
+  display: flex; align-items: center;
+  padding: 14px 16px;
+  gap: 12px;
+}
+.toggle-row + .toggle-row { border-top: 0.5px solid var(--border); }
+.toggle-info { flex: 1; }
+.toggle-label { font-size: 14px; font-weight: 500; color: var(--charcoal); margin-bottom: 2px; }
+.toggle-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.toggle-switch {
+  width: 44px; height: 26px;
+  border-radius: 13px;
+  background: var(--copper);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.toggle-switch.off { background: var(--border); }
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: right 0.2s;
+}
+.toggle-switch.off::after { right: auto; left: 3px; }
+
+/* ─── SCREEN: PROFILE ──────────────────────────────────────────────────────── */
+.profile-header {
+  padding: 56px 20px 16px;
+  background: var(--cream);
+  border-bottom: 0.5px solid var(--border);
+}
+.profile-header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600;
+  color: var(--charcoal);
+}
+.profile-header-title em { font-style: italic; color: var(--copper); }
+.profile-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 16px 20px;
+}
+.profile-avatar {
+  width: 60px; height: 60px;
+  border-radius: 30px;
+  background: var(--copper);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600;
+  color: #FDFAF5;
+  flex-shrink: 0;
+}
+.profile-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600;
+  color: var(--charcoal);
+}
+.profile-email { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.member-badge {
+  display: inline-block;
+  border: 1px solid var(--copper);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px; font-weight: 500;
+  color: var(--copper);
+}
+.menu-section { padding: 0 20px; display: flex; flex-direction: column; gap: 2px; }
+.menu-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 8px;
+}
+.menu-item:active { background: var(--cream-dark); }
+.menu-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--copper-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.menu-icon svg { width: 18px; height: 18px; }
+.menu-item-info { flex: 1; }
+.menu-item-label { font-size: 14px; font-weight: 500; color: var(--charcoal); margin-bottom: 2px; }
+.menu-item-desc { font-size: 12px; color: var(--muted); }
+.brand-footer {
+  text-align: center;
+  padding: 24px 20px 32px;
+}
+.brand-footer .footer-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.brand-footer .footer-tagline { font-size: 12px; color: var(--border); }
+
+/* ─── Utilities ────────────────────────────────────────────────────────────── */
+.pb-safe { padding-bottom: 20px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+.px-20 { padding-left: 20px; padding-right: 20px; }
+.py-20 { padding-top: 20px; padding-bottom: 20px; }
+.text-muted { color: var(--muted); }
+.text-copper { color: var(--copper); }
+.text-charcoal { color: var(--charcoal); }
+.divider-line { height: 0.5px; background: var(--border); margin: 0 20px; }
+
+/* Scrollbar hide */
+.screen::-webkit-scrollbar { display: none; }
+.screen { scrollbar-width: none; }
+
+/* ─── Outer wrapper label ──────────────────────────────────────────────────── */
+#outer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+#outer .label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Responsive — on small screens fill the viewport */
+@media (max-width: 430px) {
+  html, body { align-items: flex-start; }
+  #phone { width: 100vw; height: 100dvh; border-radius: 0; }
+  #outer .label { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="outer">
+  <div id="phone">
+    <!-- Status Bar -->
+    <div id="status-bar">
+      <span class="time">9:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M1 6l5.5 5.5L12 6l5.5 5.5L23 6" stroke="#1E120E" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M1.5 8.5C5.5 4.5 18.5 4.5 22.5 8.5M5 12c2.5-2.5 12-2.5 14 0M8.5 15.5c1.5-1.5 6-1.5 7 0M12 19h.01" stroke="#1E120E" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+        <svg viewBox="0 0 24 10"><rect x="0.5" y="0.5" width="21" height="9" rx="4.5" stroke="#1E120E" stroke-width="1"/><rect x="2" y="2" width="16" height="6" rx="3" fill="#1E120E"/><path d="M23 3.5v3a1.5 1.5 0 000-3z" fill="#1E120E"/></svg>
+      </div>
+    </div>
+
+    <!-- Screen Stack -->
+    <div id="screen-stack">
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: ONBOARDING
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-onboarding" class="screen active fade" data-status="dark">
+        <img class="hero-img" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80" alt="">
+        <div class="gradient"></div>
+        <div class="content">
+          <div class="logo-wrap">
+            <div class="logo-text">
+              <svg class="logo-flower" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g opacity="0.9">
+                  <ellipse cx="40" cy="22" rx="10" ry="16" stroke="#BA9470" stroke-width="1.5" fill="none" transform="rotate(0 40 40)"/>
+                  <ellipse cx="40" cy="22" rx="10" ry="16" stroke="#BA9470" stroke-width="1.5" fill="none" transform="rotate(60 40 40)"/>
+                  <ellipse cx="40" cy="22" rx="10" ry="16" stroke="#BA9470" stroke-width="1.5" fill="none" transform="rotate(120 40 40)"/>
+                  <ellipse cx="40" cy="22" rx="10" ry="16" stroke="#BA9470" stroke-width="1.5" fill="none" transform="rotate(180 40 40)"/>
+                  <ellipse cx="40" cy="22" rx="10" ry="16" stroke="#BA9470" stroke-width="1.5" fill="none" transform="rotate(240 40 40)"/>
+                  <ellipse cx="40" cy="22" rx="10" ry="16" stroke="#BA9470" stroke-width="1.5" fill="none" transform="rotate(300 40 40)"/>
+                  <circle cx="40" cy="40" r="6" fill="#BA9470" opacity="0.6"/>
+                </g>
+              </svg>
+              <div class="logo-name">heathcote<span class="logo-dining">Dining</span></div>
+            </div>
+          </div>
+          <div class="bottom">
+            <div class="pills">
+              <div class="pill">Michelin Star</div>
+              <div class="pill">Chef-Led</div>
+              <div class="pill">Concierge</div>
+            </div>
+            <h1>Exceptional<br><em>Dining Awaits</em></h1>
+            <p>Discover the finest Michelin-starred restaurants across the United Kingdom, with exclusive chef-led experiences and a personal concierge at your service.</p>
+            <div class="divider"></div>
+            <div class="features">
+              <div class="feature"><div class="dot"></div>6 handpicked Michelin star restaurants</div>
+              <div class="feature"><div class="dot"></div>Exclusive chef-led experiences</div>
+              <div class="feature"><div class="dot"></div>Personal concierge booking service</div>
+            </div>
+            <button class="cta" onclick="navigateTo('screen-home', 'fade')">Discover Restaurants</button>
+            <div class="signin" onclick="navigateTo('screen-home', 'fade')">Already a member? Sign in</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: HOME
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-home" class="screen" data-status="light">
+        <div class="home-header">
+          <div class="greeting">Good Evening</div>
+          <div class="brand-row">
+            <div class="brand-name"><strong>heathcote</strong><span>DINING</span></div>
+            <div class="logo-icon">
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;background:#1E120E">
+                <g>
+                  <ellipse cx="20" cy="9" rx="5" ry="8" stroke="#BA9470" stroke-width="1" fill="none" transform="rotate(0 20 20)"/>
+                  <ellipse cx="20" cy="9" rx="5" ry="8" stroke="#BA9470" stroke-width="1" fill="none" transform="rotate(60 20 20)"/>
+                  <ellipse cx="20" cy="9" rx="5" ry="8" stroke="#BA9470" stroke-width="1" fill="none" transform="rotate(120 20 20)"/>
+                  <ellipse cx="20" cy="9" rx="5" ry="8" stroke="#BA9470" stroke-width="1" fill="none" transform="rotate(180 20 20)"/>
+                  <ellipse cx="20" cy="9" rx="5" ry="8" stroke="#BA9470" stroke-width="1" fill="none" transform="rotate(240 20 20)"/>
+                  <ellipse cx="20" cy="9" rx="5" ry="8" stroke="#BA9470" stroke-width="1" fill="none" transform="rotate(300 20 20)"/>
+                  <circle cx="20" cy="20" r="3" fill="#BA9470" opacity="0.7"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured -->
+        <div style="padding: 20px 0 0;">
+          <div class="section-header-row">
+            <div class="section-title-serif">Featured <em>Restaurants</em></div>
+          </div>
+          <div class="featured-scroll" id="featured-scroll"></div>
+        </div>
+
+        <!-- All Restaurants -->
+        <div style="padding: 20px 0 0;">
+          <div class="section-header-row">
+            <div class="section-title-serif">All <em>Restaurants</em></div>
+            <div class="section-count">6 venues</div>
+          </div>
+          <div class="restaurant-list" id="restaurant-list"></div>
+        </div>
+        <div class="pb-safe" style="height:20px"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: SEARCH
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-search" class="screen" data-status="light">
+        <div class="search-header">
+          <div class="search-title">Find a <em>Restaurant</em></div>
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#7A6E66" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="#7A6E66" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="text" placeholder="Search restaurants, chefs, locations…" id="search-input" oninput="filterSearch(this.value)">
+          </div>
+          <div class="filter-row" id="filter-row"></div>
+        </div>
+        <div class="results-section">
+          <div class="results-label" id="results-label">All 6 restaurants</div>
+          <div class="restaurant-list" id="search-results"></div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: RESTAURANT DETAIL
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-restaurant" class="screen" data-status="dark">
+        <div id="restaurant-detail-content"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: CHEF PROFILE
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-chef" class="screen" data-status="dark">
+        <div id="chef-detail-content"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: EXPERIENCE DETAIL
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-experience" class="screen" data-status="dark">
+        <div id="experience-detail-content"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: BOOKINGS
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-bookings" class="screen" data-status="light">
+        <div class="bookings-header">
+          <div class="bookings-title">My <em>Bookings</em></div>
+          <div class="tab-switcher">
+            <div class="tab-switch active" id="tab-upcoming" onclick="switchBookingTab('upcoming')">Upcoming</div>
+            <div class="tab-switch" id="tab-past" onclick="switchBookingTab('past')">Past</div>
+          </div>
+        </div>
+        <div class="bookings-list" id="bookings-list"></div>
+        <div style="height:20px"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: REQUEST BOOKING
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-booking-request" class="screen slide-up" data-status="light">
+        <div id="booking-request-content"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: PREFERENCES
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-preferences" class="screen slide-up" data-status="light">
+        <div id="preferences-content"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════
+           SCREEN: PROFILE
+      ═══════════════════════════════════════════════════════════════════════ -->
+      <div id="screen-profile" class="screen" data-status="light">
+        <div class="profile-header">
+          <div class="profile-header-title">My <em>Profile</em></div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-avatar">JD</div>
+          <div>
+            <div class="profile-name">James Donaldson</div>
+            <div class="profile-email">james.d@example.com</div>
+            <div class="member-badge">Heathcote Member</div>
+          </div>
+        </div>
+        <div class="menu-section">
+          <div class="menu-item" onclick="switchTab('bookings')">
+            <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#BA9470" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#BA9470" stroke-width="2" stroke-linecap="round"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" stroke="#BA9470" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="menu-item-info"><div class="menu-item-label">My Bookings</div><div class="menu-item-desc">View upcoming and past reservations</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="menu-item">
+            <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#BA9470" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#BA9470" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="menu-item-info"><div class="menu-item-label">Personal Details</div><div class="menu-item-desc">Name, contact, and preferences</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="menu-item" onclick="navigateTo('screen-preferences','slide-up')">
+            <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M8 6a4 4 0 108 0M5 20a7 7 0 0114 0" stroke="#BA9470" stroke-width="2" stroke-linecap="round"/><path d="M12 14v4M10 16h4" stroke="#BA9470" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="menu-item-info"><div class="menu-item-label">Dining Preferences</div><div class="menu-item-desc">Dietary requirements and allergies</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="menu-item" onclick="navigateTo('screen-booking-request','slide-up')">
+            <div class="menu-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#BA9470" stroke-width="2"/></svg></div>
+            <div class="menu-item-info"><div class="menu-item-label">Contact Concierge</div><div class="menu-item-desc">Speak to a dining advisor</div></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+        <div class="brand-footer">
+          <div class="footer-logo">heathcote dining</div>
+          <div class="footer-tagline">Exceptional dining, curated for you</div>
+        </div>
+      </div>
+
+    </div><!-- /screen-stack -->
+
+    <!-- Tab Bar -->
+    <div id="tab-bar">
+      <div class="tab-item active" id="tab-discover" onclick="switchTab('home')">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="#BA9470"/><polyline points="9 22 9 12 15 12 15 22" fill="#FDFAF5"/></svg>
+        <span>Discover</span>
+      </div>
+      <div class="tab-item" id="tab-search" onclick="switchTab('search')">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#9B9189" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Search</span>
+      </div>
+      <div class="tab-item" id="tab-bookings-btn" onclick="switchTab('bookings')">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#9B9189" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Bookings</span>
+      </div>
+      <div class="tab-item" id="tab-profile-btn" onclick="switchTab('profile')">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#9B9189" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Profile</span>
+      </div>
+    </div>
+  </div>
+  <div class="label">Heathcote Dining — Interactive Mockup</div>
+</div>
+
+<script>
+// ─── Data ─────────────────────────────────────────────────────────────────────
+const RESTAURANTS = [
+  { id:'gilded-thistle', name:'The Gilded Thistle', location:'Edinburgh, Scotland', region:'Edinburgh', stars:2, rosettes:4, about:"Nestled within a Georgian townhouse on Edinburgh's Royal Mile, The Gilded Thistle is a celebration of Scotland's extraordinary natural larder. Chef Iona Mackenzie's tasting menus are rooted in the seasons and the landscape — wild, precise, and deeply moving.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-gilded-thistle-kUasxgB9QWVuLvFyJiys5m.webp', chefId:'chef-iona', experienceId:'exp-wine-cellar', address:'14 Royal Mile, Edinburgh EH1 1TH', lat:55.9497, lng:-3.1922 },
+  { id:'ember-salt', name:'Ember & Salt', location:'Mayfair, London', region:'London', stars:3, rosettes:5, about:"Ember & Salt occupies a discreet townhouse on a quiet Mayfair mews. Marcus Vane's three-Michelin-star kitchen is a temple of restraint and precision — each dish a study in the extraordinary depth achievable from the finest British ingredients, treated with absolute respect.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-ember-salt-E2uveMfe4TaLSK2xiJ5h7i.webp', chefId:'chef-marcus', experienceId:'exp-kitchen-table', address:'7 Bruton Mews, Mayfair, London W1J 6LJ', lat:51.5074, lng:-0.1468 },
+  { id:'walled-garden', name:'The Walled Garden', location:'Cheshire, England', region:'Cheshire', stars:1, rosettes:3, about:"Set within a 300-acre private estate in the Cheshire countryside, The Walled Garden is Paul Heathcote MBE's most personal project. The restaurant occupies a restored Victorian glasshouse overlooking the estate's kitchen garden, which supplies much of what appears on the plate.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-walled-garden-SuR3wWKdzNBhhBCPf74ez8.webp', chefId:'chef-paul', experienceId:'exp-vineyard', address:'Arley Hall Estate, Northwich, Cheshire CW9 6NA', lat:53.2707, lng:-2.6985 },
+  { id:'obsidian', name:'Obsidian', location:'Manchester, England', region:'Manchester', stars:2, rosettes:4, about:"Obsidian is Manchester's most exciting fine dining destination. Ravi Chandra's two-Michelin-star kitchen occupies a dramatic black-marble space in the Northern Quarter, where his boundary-pushing cuisine draws on the bold flavours of his Indian heritage and the precision of classical French technique.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-obsidian-Yu7K9uQccigmrN3WaYf446.webp', chefId:'chef-ravi', experienceId:'exp-meat-cure', address:'12 Tib Street, Northern Quarter, Manchester M4 1SH', lat:53.4808, lng:-2.2426 },
+  { id:'tide-stone', name:'Tide & Stone', location:'Porthcurno, Cornwall', region:'Cornwall', stars:1, rosettes:3, about:"Perched on the cliffs above Porthcurno beach, Tide & Stone is one of the most dramatically situated restaurants in Britain. Cara Trevithick's daily-changing menu is dictated entirely by the sea and the coastline — a pure expression of Cornish terroir at its most elemental.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-tide-stone-Nb5SQgSPVV8AvdagV7Rip6.webp', chefId:'chef-cara', experienceId:'exp-foraging', address:'Porthcurno Cliff, St Levan, Cornwall TR19 6JX', lat:50.0379, lng:-5.6537 },
+  { id:'lumiere', name:'Lumière', location:'Bath, Somerset', region:'Bath', stars:2, rosettes:4, about:"Lumière occupies a Grade I listed Georgian townhouse overlooking Bath's famous Royal Crescent. Henri Dubois's two-Michelin-star kitchen is a masterclass in classical French technique applied to the finest West Country and Somerset produce — a restaurant of extraordinary elegance and ambition.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-lumiere-c47yrNkT7zZK7vJurmBcN4.webp', chefId:'chef-henri', experienceId:'exp-cellar-cheese', address:'4 Royal Crescent, Bath BA1 2LR', lat:51.3837, lng:-2.3623 },
+];
+
+const CHEFS = {
+  'chef-iona': { id:'chef-iona', name:'Iona Mackenzie', title:'Head Chef', accolades:'2 Michelin Stars · 4 AA Rosettes', bio:"Born and raised in the Scottish Highlands, Iona Mackenzie developed her palate foraging the hillsides of Perthshire before training under legendary chefs in Paris and Copenhagen. Her cooking is a love letter to Scotland — wild, seasonal, and deeply personal. She returned to Edinburgh in 2018 to open The Gilded Thistle, which earned its first Michelin star within eighteen months and its second the following year.\n\nIona is known for her mastery of Scotland's finest larder: hand-dived scallops from the Isle of Skye, aged venison from the Cairngorms, and heritage vegetables from her own kitchen garden. Her tasting menus change with every season, sometimes every week, driven entirely by what is at its absolute best.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-iona-StawBsgbgypFpXDMKyT4YU.webp', restaurantId:'gilded-thistle' },
+  'chef-marcus': { id:'chef-marcus', name:'Marcus Vane', title:'Executive Chef & Founder', accolades:'3 Michelin Stars · 5 AA Rosettes', bio:"Marcus Vane is widely regarded as one of the most technically gifted chefs of his generation. Trained at the Ritz Paris and later at elBulli under Ferran Adrià, he returned to London in 2010 to open Ember & Salt in Mayfair — a restaurant that redefined modern British fine dining. The restaurant received three Michelin stars in 2016 and has held them every year since.\n\nHis cuisine is defined by restraint and precision: each dish contains no more than four principal ingredients, yet the depth of flavour achieved is extraordinary. Marcus is a fierce advocate for British produce, working exclusively with farmers and fishermen he has known for decades.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-marcus-XXgQdpqgdX78noGYBnzCtT.webp', restaurantId:'ember-salt' },
+  'chef-paul': { id:'chef-paul', name:'Paul Heathcote MBE', title:'Founder & Executive Chef', accolades:'1 Michelin Star · Former 2-Star Holder · MBE', bio:"Paul Heathcote MBE is one of the most celebrated figures in British gastronomy. He held two Michelin stars at his flagship restaurant in Longridge, Lancashire, for over a decade, and was instrumental in putting the North of England on the fine dining map at a time when London dominated the conversation.\n\nNow at The Walled Garden in Cheshire, Paul has returned to his roots — championing the extraordinary produce of the North West in a setting of breathtaking natural beauty. His cooking is generous, honest, and deeply rooted in the seasons, drawing on thirty years of relationships with local farmers, growers, and artisan producers.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-paul-CryFSyHhCGkT9nFkQgcWGz.webp', restaurantId:'walled-garden' },
+  'chef-ravi': { id:'chef-ravi', name:'Ravi Chandra', title:'Head Chef & Co-Founder', accolades:'2 Michelin Stars · 4 AA Rosettes', bio:"Ravi Chandra grew up between Mumbai and Manchester, and his cooking reflects both worlds — the bold, complex spicing of the subcontinent filtered through the precision and restraint of classical French technique. After stages at Noma and The Fat Duck, he opened Obsidian in Manchester's Northern Quarter in 2019.\n\nObsidian earned its first Michelin star in its debut year and its second in 2022, making Ravi the youngest chef in the North of England to hold two stars. His signature meat curing programme, developed over three years, is now one of the most talked-about culinary projects in the UK.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-ravi-mGeePar7swcAFdyKBwq6vt.webp', restaurantId:'obsidian' },
+  'chef-cara': { id:'chef-cara', name:'Cara Trevithick', title:'Head Chef & Owner', accolades:'1 Michelin Star · 3 AA Rosettes', bio:"Cara Trevithick was born in Newlyn, Cornwall, the daughter of a fisherman. She has spent her entire career celebrating the extraordinary larder of the Cornish coastline — from wild sea herbs and samphire to line-caught bass and hand-picked crab. After training in London and a formative year in Japan, she returned to Cornwall to open Tide & Stone on the cliffs above Porthcurno.\n\nHer cooking is elemental and deeply connected to place. The menu changes daily based on what the boats bring in and what she finds on her morning foraging walks along the coastal path.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-iona-StawBsgbgypFpXDMKyT4YU.webp', restaurantId:'tide-stone' },
+  'chef-henri': { id:'chef-henri', name:'Henri Dubois', title:'Head Chef', accolades:'2 Michelin Stars · 4 AA Rosettes', bio:"Henri Dubois arrived in Bath from Lyon in 2012, drawn by the city's Georgian grandeur and its proximity to some of England's finest farmland. A classically trained French chef who spent a decade at Paul Bocuse's restaurant in Lyon, Henri brought with him a rigorous devotion to classical technique and an obsession with the finest raw ingredients.\n\nAt Lumière, his cooking is a dialogue between France and England — Bresse-style preparations applied to Somerset duck, Burgundian wine pairings alongside West Country cheeses, and a cellar that is widely regarded as one of the finest in the South West.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-marcus-XXgQdpqgdX78noGYBnzCtT.webp', restaurantId:'lumiere' },
+};
+
+const EXPERIENCES = {
+  'exp-wine-cellar': { id:'exp-wine-cellar', name:'Private Wine Cellar Experience', tagline:'Descend into history', description:"Beneath The Gilded Thistle lies a 17th-century vaulted stone cellar housing over 2,000 bottles personally selected by Iona Mackenzie and her head sommelier. This exclusive evening begins with a candlelit tour of the cellar before settling at a long oak tasting table for a guided flight of six exceptional wines, each paired with a small plate created for the occasion.", includes:['Guided cellar tour','Six-wine tasting flight','Paired small plates','Signed wine notes','Private dining for up to 8 guests'], duration:'3 hours', groupSize:'Up to 8 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-wine-cellar-Ub5y4RABqr9gqrUz6m2Fgi.webp' },
+  'exp-kitchen-table': { id:'exp-kitchen-table', name:"Chef's Kitchen Table", tagline:'At the heart of everything', description:"The most intimate dining experience in London. A single table for four, set within the working kitchen of Ember & Salt, where Marcus Vane and his team cook around you. You will witness every element of the tasting menu being prepared, with Marcus pausing to explain the provenance of each ingredient and the thinking behind each dish. This is not a demonstration — it is a conversation.", includes:['12-course tasting menu','Kitchen tour & chef commentary','Paired wine flight','Signed menu keepsake','Exclusive for 2–4 guests'], duration:'4 hours', groupSize:'2–4 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-kitchen-table-BG727XLaXoTgVMevufASHA.webp' },
+  'exp-vineyard': { id:'exp-vineyard', name:'Vineyard Tour & Harvest Lunch', tagline:'From vine to table', description:"Set within the grounds of a private Cheshire estate, The Walled Garden's vineyard produces a small quantity of exceptional English sparkling wine each year. Paul Heathcote MBE leads this exclusive morning tour through the vines, followed by a long harvest lunch in the walled garden itself — a celebration of the estate's produce at its seasonal peak.", includes:['Guided vineyard tour with Paul','English sparkling wine tasting','Five-course harvest lunch','Estate produce hamper to take home','Up to 12 guests'], duration:'Half day (5 hours)', groupSize:'Up to 12 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-walled-garden-SuR3wWKdzNBhhBCPf74ez8.webp' },
+  'exp-meat-cure': { id:'exp-meat-cure', name:'Meat Cure Room Experience', tagline:'The art of patience', description:"Ravi Chandra's curing programme is one of the most ambitious in British fine dining. This exclusive experience takes you behind the pass and into the curing room itself, where Ravi explains the three-year journey of each cut — from selection and preparation through salting, smoking, and ageing. The evening concludes with a private dinner built entirely around the curing programme.", includes:['Private curing room tour','Guided tasting of cured meats','Six-course dinner by Ravi','Paired natural wine flight','Exclusive for 2–6 guests'], duration:'4 hours', groupSize:'2–6 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-meat-cure-3Mv8qxsijhy3Cg59fDmf8R.webp' },
+  'exp-foraging': { id:'exp-foraging', name:'Coastal Foraging Experience', tagline:'Walk the wild edge', description:"Join Cara Trevithick on her morning foraging walk along the Porthcurno coastal path, gathering the sea herbs, samphire, and coastal plants that will appear on your plate that evening. The walk is followed by a return to Tide & Stone for a private lunch built entirely from what you have foraged, paired with wines selected by Cara to complement the coastal terroir.", includes:['Guided coastal foraging walk','Foraging kit & guide book','Private lunch from foraged ingredients','Wine pairing','Up to 6 guests'], duration:'5 hours', groupSize:'Up to 6 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-tide-stone-Nb5SQgSPVV8AvdagV7Rip6.webp' },
+  'exp-cellar-cheese': { id:'exp-cellar-cheese', name:'Cellar & Cheese Cave Tour', tagline:'A journey through terroir', description:"Beneath Lumière lies one of the finest wine cellars in the South West, alongside a dedicated cheese cave where Henri Dubois ages a selection of exceptional British and French cheeses. This private evening begins with a candlelit tour of both spaces, guided by Henri himself, before moving to the private dining room for a five-course dinner with an extraordinary cheese course and paired wines from the cellar.", includes:['Wine cellar & cheese cave tour','Five-course dinner','Cheese course with 12 selections','Paired wine flight','Exclusive for 2–8 guests'], duration:'3.5 hours', groupSize:'2–8 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-wine-cellar-Ub5y4RABqr9gqrUz6m2Fgi.webp' },
+};
+
+const REVIEWS = {
+  'gilded-thistle': [
+    { pub:'The Guardian', logo:'TG', quote:"Iona Mackenzie has created something extraordinary in Edinburgh. This is Scottish cooking at its most honest and most thrilling — wild, seasonal, and deeply moving.", author:'Grace Dent', year:'2025', rating:'★★★★★' },
+    { pub:'The Times', logo:'TT', quote:"The best meal I have eaten in Scotland in twenty years. Mackenzie's tasting menu is a masterclass in restraint and beauty.", author:'Giles Coren', year:'2025', rating:'★★★★★' },
+  ],
+  'ember-salt': [
+    { pub:'Financial Times', logo:'FT', quote:"Marcus Vane is operating at a level that very few chefs in the world can match. Ember & Salt is not merely a great restaurant — it is a singular experience.", author:'Tim Hayward', year:'2025', rating:'★★★★★' },
+    { pub:'The Observer', logo:'OB', quote:"Three stars, and every one of them earned. Vane's kitchen is the most technically accomplished in London right now.", author:'Jay Rayner', year:'2024', rating:'★★★★★' },
+  ],
+  'walled-garden': [
+    { pub:'The Daily Telegraph', logo:'DT', quote:"Paul Heathcote has lost none of his brilliance. The Walled Garden is a triumph — generous, seasonal, and rooted in the very best of the North West.", author:'William Sitwell', year:'2025', rating:'★★★★' },
+  ],
+  'obsidian': [
+    { pub:'The Guardian', logo:'TG', quote:"Ravi Chandra is doing something genuinely new. Obsidian is the most exciting restaurant to open in Manchester in a decade.", author:'Grace Dent', year:'2024', rating:'★★★★★' },
+    { pub:'Michelin Guide', logo:'MG', quote:"Bold, precise, and utterly original. Chandra's curing programme alone is worth the journey to Manchester.", author:'Michelin Inspector', year:'2025', rating:'★★' },
+  ],
+  'tide-stone': [
+    { pub:'The Sunday Times', logo:'ST', quote:"The most dramatically situated restaurant in Britain, and the food matches the view. Cara Trevithick is a chef of rare gifts.", author:"Marina O'Loughlin", year:'2025', rating:'★★★★★' },
+  ],
+  'lumiere': [
+    { pub:'The Times', logo:'TT', quote:"Henri Dubois has brought the soul of Lyon to Bath, and the result is magnificent. Lumière is one of the finest French restaurants in England.", author:'Giles Coren', year:'2024', rating:'★★★★★' },
+  ],
+};
+
+const BOOKINGS = [
+  { id:'b1', restaurantId:'ember-salt', expName:"Chef's Kitchen Table", date:'14 April 2026', time:'7:00 PM', guests:2, status:'confirmed', isPast:false },
+  { id:'b2', restaurantId:'gilded-thistle', expName:'Private Wine Cellar Experience', date:'2 May 2026', time:'6:30 PM', guests:4, status:'confirmed', isPast:false },
+  { id:'b3', restaurantId:'obsidian', expName:'Meat Cure Room Experience', date:'18 January 2026', time:'7:30 PM', guests:2, status:'completed', isPast:true },
+  { id:'b4', restaurantId:'walled-garden', expName:'Vineyard Tour & Harvest Lunch', date:'9 October 2025', time:'11:00 AM', guests:6, status:'completed', isPast:true },
+];
+
+// ─── Navigation State ─────────────────────────────────────────────────────────
+let screenHistory = ['screen-onboarding'];
+let currentTab = 'home';
+let currentBookingTab = 'upcoming';
+let activeFilters = new Set();
+
+function stars(n) {
+  return '★'.repeat(n);
+}
+
+function starsHtml(n, size=13) {
+  return `<span style="color:#BA9470;font-size:${size}px;letter-spacing:1px">${'★'.repeat(n)}</span>`;
+}
+
+function navigateTo(screenId, animation='slide') {
+  const current = screenHistory[screenHistory.length - 1];
+  if (current === screenId) return;
+
+  const currentEl = document.getElementById(current);
+  const nextEl = document.getElementById(screenId);
+  if (!currentEl || !nextEl) return;
+
+  // Update status bar style
+  const statusDark = nextEl.dataset.status === 'dark';
+  document.getElementById('phone').classList.toggle('status-dark', statusDark);
+
+  // Handle tab bar visibility
+  const tabScreens = ['screen-home','screen-search','screen-bookings','screen-profile'];
+  const isTabScreen = tabScreens.includes(screenId);
+  document.getElementById('tab-bar').style.display = isTabScreen ? 'flex' : 'none';
+
+  // Animate out current
+  if (animation === 'fade') {
+    currentEl.classList.remove('active');
+    nextEl.classList.remove('fade');
+    nextEl.classList.add('active');
+  } else if (animation === 'slide-up') {
+    currentEl.classList.add('prev');
+    nextEl.classList.add('active');
+  } else {
+    currentEl.classList.add('prev');
+    nextEl.classList.remove('prev');
+    nextEl.classList.add('active');
+  }
+
+  screenHistory.push(screenId);
+
+  // Scroll to top
+  nextEl.scrollTop = 0;
+}
+
+function goBack() {
+  if (screenHistory.length <= 1) return;
+  const current = screenHistory.pop();
+  const prev = screenHistory[screenHistory.length - 1];
+
+  const currentEl = document.getElementById(current);
+  const prevEl = document.getElementById(prev);
+  if (!currentEl || !prevEl) return;
+
+  currentEl.classList.remove('active');
+  currentEl.classList.remove('prev');
+  prevEl.classList.remove('prev');
+  prevEl.classList.add('active');
+
+  // Restore status bar
+  const statusDark = prevEl.dataset.status === 'dark';
+  document.getElementById('phone').classList.toggle('status-dark', statusDark);
+
+  // Restore tab bar
+  const tabScreens = ['screen-home','screen-search','screen-bookings','screen-profile'];
+  document.getElementById('tab-bar').style.display = tabScreens.includes(prev) ? 'flex' : 'none';
+}
+
+function switchTab(tab) {
+  const tabMap = {
+    'home': 'screen-home',
+    'search': 'screen-search',
+    'bookings': 'screen-bookings',
+    'profile': 'screen-profile',
+  };
+  const screenId = tabMap[tab];
+  if (!screenId) return;
+
+  // Reset history to just this tab screen
+  const allScreens = document.querySelectorAll('.screen');
+  allScreens.forEach(s => { s.classList.remove('active','prev'); });
+  document.getElementById(screenId).classList.add('active');
+  screenHistory = [screenId];
+
+  document.getElementById('phone').classList.remove('status-dark');
+  document.getElementById('tab-bar').style.display = 'flex';
+
+  // Update tab active state
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  const tabIds = { home:'tab-discover', search:'tab-search', bookings:'tab-bookings-btn', profile:'tab-profile-btn' };
+  if (tabIds[tab]) document.getElementById(tabIds[tab]).classList.add('active');
+
+  currentTab = tab;
+}
+
+// ─── Restaurant Detail ────────────────────────────────────────────────────────
+function openRestaurant(id) {
+  const r = RESTAURANTS.find(x => x.id === id);
+  if (!r) return;
+  const chef = CHEFS[r.chefId];
+  const exp = EXPERIENCES[r.experienceId];
+  const reviews = REVIEWS[r.id] || [];
+
+  const starsStr = stars(r.stars);
+  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${r.lat},${r.lng}&zoom=15&size=600x300&maptype=roadmap&markers=color:0xBA9470%7C${r.lat},${r.lng}&style=feature:all%7Celement:labels.text.fill%7Ccolor:0x7A6E66&key=`;
+
+  const reviewsHtml = reviews.map(rv => `
+    <div class="review-card">
+      <span class="review-quote-mark">"</span>
+      <div class="review-quote">${rv.quote}</div>
+      <div class="review-footer">
+        <div class="review-pub-badge">${rv.logo}</div>
+        <div class="review-meta">
+          <div class="review-pub">${rv.pub}</div>
+          <div class="review-author">${rv.author} · ${rv.year}</div>
+        </div>
+        <div class="review-rating">${rv.rating || ''}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('restaurant-detail-content').innerHTML = `
+    <div class="detail-hero">
+      <img src="${r.heroImageUrl}" alt="${r.name}">
+      <div class="overlay"></div>
+      <div class="back-float" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#FDFAF5" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badges">
+          <div class="star-badge">${starsStr} ${r.stars} Michelin Star${r.stars>1?'s':''}</div>
+          <div class="rosette-badge">◆ ${r.rosettes} AA Rosettes</div>
+        </div>
+        <div class="hero-name">${r.name}</div>
+        <div class="hero-loc">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="rgba(253,250,245,0.7)"/><circle cx="12" cy="9" r="2.5" fill="rgba(20,10,6,0.4)"/></svg>
+          ${r.location}
+        </div>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-section">
+        <div class="section-label">About</div>
+        <div class="detail-about">${r.about}</div>
+      </div>
+      <div class="detail-section">
+        <div class="section-label">Chef-Led Experience</div>
+        <div class="exp-card" onclick="openExperience('${exp.id}')">
+          <img src="${exp.imageUrl}" alt="${exp.name}">
+          <div class="overlay"></div>
+          <div class="content">
+            <div class="exp-name">${exp.name}</div>
+            <div class="exp-meta">⏱ ${exp.duration} &nbsp;·&nbsp; 👥 ${exp.groupSize}</div>
+            <div class="exp-btn">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="rgba(253,250,245,0.9)" stroke-width="2" stroke-linecap="round"/></svg>
+              Explore Experience
+            </div>
+          </div>
+        </div>
+      </div>
+      ${chef ? `
+      <div class="detail-section">
+        <div class="section-label">The Chef</div>
+        <div class="chef-row" onclick="openChef('${chef.id}')">
+          <img src="${chef.imageUrl}" alt="${chef.name}">
+          <div class="chef-info">
+            <div class="chef-name">${chef.name}</div>
+            <div class="chef-title">${chef.title}</div>
+            <div class="chef-acc">${chef.accolades}</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+      </div>` : ''}
+      <div class="detail-section">
+        <div class="section-label">Location</div>
+        <div class="map-placeholder" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.address)}','_blank')">
+          <img src="https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-s+BA9470(${r.lng},${r.lat})/${r.lng},${r.lat},14,0/600x300@2x?access_token=pk.eyJ1IjoibWFudXMtZGVtbyIsImEiOiJjbHVzZGVtbzAwMDAxMmpxcHd4ZHJzNnRiIn0.demo" 
+               onerror="this.style.display='none'; this.parentNode.querySelector('.map-pin-overlay').style.display='flex'"
+               alt="Map" style="width:100%;height:100%;object-fit:cover">
+          <div class="map-pin-overlay" style="display:none">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#BA9470"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg>
+            <span>Tap to open in Maps</span>
+          </div>
+        </div>
+        <div class="address-row">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#9B9189"/></svg>
+          <span style="flex:1">${r.address}</span>
+          <span class="directions" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(r.address)}','_blank')">Get Directions</span>
+        </div>
+      </div>
+      ${reviews.length > 0 ? `
+      <div class="detail-section">
+        <div class="section-label">Press &amp; Reviews</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px">What the critics are saying</div>
+        ${reviewsHtml}
+      </div>` : ''}
+    </div>
+    <div style="height:100px"></div>
+    <div class="sticky-footer">
+      <button class="btn-primary" onclick="openBookingRequest('${r.id}')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" fill="white"/></svg>
+        Request Booking
+      </button>
+    </div>
+  `;
+  navigateTo('screen-restaurant');
+}
+
+// ─── Chef Profile ─────────────────────────────────────────────────────────────
+function openChef(id) {
+  const chef = CHEFS[id];
+  if (!chef) return;
+  const restaurant = RESTAURANTS.find(r => r.id === chef.restaurantId);
+
+  const bioParagraphs = chef.bio.split('\n\n').map(p => `<p class="chef-bio">${p}</p>`).join('');
+
+  document.getElementById('chef-detail-content').innerHTML = `
+    <div class="chef-hero">
+      <img src="${chef.imageUrl}" alt="${chef.name}">
+      <div class="overlay"></div>
+      <div class="back-float" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#FDFAF5" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="hero-content">
+        <div class="chef-hero-name">${chef.name}</div>
+        <div class="chef-hero-title">${chef.title}</div>
+        <div class="chef-hero-acc">${chef.accolades}</div>
+      </div>
+    </div>
+    <div class="chef-body">
+      <div class="section-label" style="margin-bottom:14px">Biography</div>
+      ${bioParagraphs}
+      ${restaurant ? `
+      <div class="section-label" style="margin-top:24px;margin-bottom:12px">Restaurant</div>
+      <div class="chef-restaurant-btn" onclick="openRestaurant('${restaurant.id}')">
+        <img src="${restaurant.heroImageUrl}" alt="${restaurant.name}">
+        <div class="info">
+          <div class="label">View Restaurant</div>
+          <div class="name">${restaurant.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${restaurant.location}</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>` : ''}
+    </div>
+    <div style="height:40px"></div>
+  `;
+  navigateTo('screen-chef');
+}
+
+// ─── Experience Detail ────────────────────────────────────────────────────────
+function openExperience(id) {
+  const exp = EXPERIENCES[id];
+  if (!exp) return;
+
+  const includesHtml = exp.includes.map(item => `
+    <div class="include-item">
+      <div class="include-dot"></div>
+      <span>${item}</span>
+    </div>
+  `).join('');
+
+  document.getElementById('experience-detail-content').innerHTML = `
+    <div class="exp-detail-hero">
+      <img src="${exp.imageUrl}" alt="${exp.name}">
+      <div class="overlay"></div>
+      <div class="back-float" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#FDFAF5" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="hero-content">
+        <div class="exp-hero-name">${exp.name}</div>
+        <div class="exp-hero-tag">${exp.tagline}</div>
+      </div>
+    </div>
+    <div class="exp-body">
+      <div class="exp-meta-row">
+        <div class="exp-meta-pill">
+          <div class="meta-label">Duration</div>
+          <div class="meta-val">${exp.duration}</div>
+        </div>
+        <div class="exp-meta-pill">
+          <div class="meta-label">Group Size</div>
+          <div class="meta-val">${exp.groupSize}</div>
+        </div>
+      </div>
+      <div class="section-label" style="margin-bottom:10px">About this Experience</div>
+      <div class="exp-desc">${exp.description}</div>
+      <div class="section-label" style="margin-bottom:12px">What's Included</div>
+      <div class="includes-list">${includesHtml}</div>
+    </div>
+    <div style="height:100px"></div>
+    <div class="sticky-footer">
+      <button class="btn-primary" onclick="openBookingRequest(null)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" fill="white"/></svg>
+        Request Booking
+      </button>
+    </div>
+  `;
+  navigateTo('screen-experience');
+}
+
+// ─── Booking Request ──────────────────────────────────────────────────────────
+function openBookingRequest(restaurantId) {
+  const r = restaurantId ? RESTAURANTS.find(x => x.id === restaurantId) : null;
+  const subtitle = r ? `For ${r.name}` : 'Speak to a dining advisor';
+
+  document.getElementById('booking-request-content').innerHTML = `
+    <div class="booking-req-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="back-btn" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#1E120E" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="booking-req-title">Request a <em>Booking</em></div>
+          <div class="booking-req-sub">${subtitle}</div>
+        </div>
+      </div>
+    </div>
+    <div class="concierge-card">
+      <div class="phone-icon">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" fill="#BA9470"/></svg>
+      </div>
+      <h3>Speak to Your <em>Concierge</em></h3>
+      <p>Our dedicated dining advisors are available seven days a week to arrange your booking, discuss the experience in detail, and ensure every element is perfect.</p>
+      <button class="call-btn" onclick="showBookingConfirm()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" fill="white"/></svg>
+        Call Concierge Now
+      </button>
+    </div>
+    <div class="steps-section">
+      <div class="steps-title">How it Works</div>
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-info">
+          <div class="step-label">Call or Request a Callback</div>
+          <div class="step-desc">Speak directly with a Heathcote dining advisor, or request a callback at a time that suits you.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-info">
+          <div class="step-label">Discuss Your Preferences</div>
+          <div class="step-desc">Your advisor will discuss dates, dietary requirements, group size, and any special requests.</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-info">
+          <div class="step-label">Receive Your Confirmation</div>
+          <div class="step-desc">Your booking confirmation will be sent by email, with a reminder 48 hours before your experience.</div>
+        </div>
+      </div>
+    </div>
+    <div class="assurance-card">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="#BA9470" opacity="0.2"/><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" stroke="#BA9470" stroke-width="1.5"/><path d="M9 12l2 2 4-4" stroke="#BA9470" stroke-width="2" stroke-linecap="round"/></svg>
+      <p>Every Heathcote Dining booking is handled personally by our concierge team. We never use automated booking systems — your experience is too important for that.</p>
+    </div>
+    <div style="height:30px"></div>
+  `;
+  navigateTo('screen-booking-request', 'slide-up');
+}
+
+function showBookingConfirm() {
+  const btn = document.querySelector('.concierge-card .call-btn');
+  if (btn) {
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg> Connecting you now…`;
+    btn.style.background = '#16A34A';
+    setTimeout(() => {
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg> Request Sent`;
+    }, 1500);
+  }
+}
+
+// ─── Preferences ─────────────────────────────────────────────────────────────
+const DIETARY = ['Vegetarian','Vegan','Pescatarian','Halal','Kosher','Gluten Free','Dairy Free','No restrictions'];
+const ALLERGENS = ['Tree Nuts','Peanuts','Shellfish','Fish','Eggs','Milk / Dairy','Wheat / Gluten','Soy','Sesame','Celery','Mustard','Sulphites'];
+const CUISINES = ['Modern British','French','Japanese','Italian','Nordic / Scandinavian','Mediterranean','Tasting Menus','Wine Pairing'];
+
+let selectedDietary = new Set();
+let selectedAllergens = new Set();
+let selectedCuisines = new Set();
+
+function togglePref(set, value, el) {
+  if (set.has(value)) { set.delete(value); el.classList.remove('active'); }
+  else { set.add(value); el.classList.add('active'); }
+}
+
+function buildPreferences() {
+  const dietaryChips = DIETARY.map(d => `<div class="chip${selectedDietary.has(d)?' active':''}" onclick="togglePref(selectedDietary,'${d}',this)">${d}</div>`).join('');
+  const allergenChips = ALLERGENS.map(a => `<div class="chip${selectedAllergens.has(a)?' active':''}" onclick="togglePref(selectedAllergens,'${a}',this)">${a}</div>`).join('');
+  const cuisineChips = CUISINES.map(c => `<div class="chip${selectedCuisines.has(c)?' active':''}" onclick="togglePref(selectedCuisines,'${c}',this)">${c}</div>`).join('');
+
+  document.getElementById('preferences-content').innerHTML = `
+    <div class="screen-header">
+      <div class="back-btn" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="#1E120E" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="header-title-wrap">
+        <div class="header-title">Dining <span class="header-title-italic">Preferences</span></div>
+      </div>
+      <div class="header-spacer"></div>
+    </div>
+    <div class="pref-intro">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8 6a4 4 0 108 0M5 20a7 7 0 0114 0" stroke="#BA9470" stroke-width="2" stroke-linecap="round"/></svg>
+      <p>Your preferences are shared with our concierge team to ensure every booking is tailored precisely to your needs.</p>
+    </div>
+    <div class="pref-section">
+      <div class="pref-section-title">Dietary Requirements</div>
+      <div class="pref-section-sub">Select all that apply to your diet</div>
+      <div class="chip-grid">${dietaryChips}</div>
+    </div>
+    <div class="pref-section">
+      <div class="pref-section-title">Allergens &amp; Intolerances</div>
+      <div class="pref-section-sub">We will flag these to the restaurant kitchen</div>
+      <div class="chip-grid">${allergenChips}</div>
+    </div>
+    <div class="pref-section">
+      <div class="pref-section-title">Cuisine Preferences</div>
+      <div class="pref-section-sub">Help us recommend restaurants you will love</div>
+      <div class="chip-grid">${cuisineChips}</div>
+    </div>
+    <div class="pref-section">
+      <div class="pref-section-title">Notifications</div>
+      <div class="toggle-card">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">New Experiences
+
+            <div class="toggle-desc">Be notified when new chef-led experiences are added</div>
+          </div>
+          <div class="toggle-switch" onclick="this.classList.toggle('off')"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-label">Booking Reminders</div>
+            <div class="toggle-desc">Receive a reminder 48 hours before your experience</div>
+          </div>
+          <div class="toggle-switch" onclick="this.classList.toggle('off')"></div>
+        </div>
+      </div>
+    </div>
+    <div style="height:90px"></div>
+    <div class="sticky-footer">
+      <button class="btn-primary" onclick="goBack()">Save Preferences</button>
+    </div>
+  `;
+}
+
+// ─── Bookings ─────────────────────────────────────────────────────────────────
+function switchBookingTab(tab) {
+  currentBookingTab = tab;
+  document.getElementById('tab-upcoming').classList.toggle('active', tab === 'upcoming');
+  document.getElementById('tab-past').classList.toggle('active', tab === 'past');
+  renderBookings();
+}
+
+function renderBookings() {
+  const list = BOOKINGS.filter(b => b.isPast === (currentBookingTab === 'past'));
+  const el = document.getElementById('bookings-list');
+  if (!list.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--muted)">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style="margin:0 auto 12px;display:block"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#E5E0D8" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#E5E0D8" stroke-width="2" stroke-linecap="round"/></svg>
+      <div style="font-size:15px;font-weight:500;color:#9B9189;margin-bottom:6px">No ${currentBookingTab} bookings</div>
+      <div style="font-size:13px">Your ${currentBookingTab} reservations will appear here</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = list.map(b => {
+    const r = RESTAURANTS.find(x => x.id === b.restaurantId);
+    if (!r) return '';
+    const statusClass = b.status === 'confirmed' ? 'status-confirmed' : 'status-completed';
+    const statusLabel = b.status === 'confirmed' ? 'Confirmed' : 'Completed';
+    return `
+      <div class="booking-card">
+        <div class="booking-img-wrap">
+          <img src="${r.heroImageUrl}" alt="${r.name}">
+          <div class="status-badge ${statusClass}">${statusLabel}</div>
+        </div>
+        <div class="booking-info">
+          <div class="booking-rest">${r.name}</div>
+          <div class="booking-exp">${b.expName}</div>
+          <div class="booking-meta">
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#9B9189" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+              ${b.date}
+            </span>
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#9B9189" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+              ${b.time}
+            </span>
+            <span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="#9B9189" stroke-width="2"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.87" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+              ${b.guests} guests
+            </span>
+          </div>
+          <div class="view-btn" onclick="openRestaurant('${r.id}')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#BA9470" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="#BA9470" stroke-width="2"/></svg>
+            View Restaurant
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── Search & Filter ──────────────────────────────────────────────────────────
+const REGIONS = ['All','London','Edinburgh','Manchester','Cheshire','Cornwall','Bath'];
+let activeRegion = 'All';
+let activeStarFilter = null;
+
+function renderFilterRow() {
+  const el = document.getElementById('filter-row');
+  if (!el) return;
+  const regionChips = REGIONS.map(r => `
+    <div class="chip${activeRegion===r?' active':''}" onclick="setRegion('${r}')">${r}</div>
+  `).join('');
+  el.innerHTML = regionChips + `
+    <div class="chip${activeStarFilter===1?' active':''}" onclick="setStarFilter(1)">★ 1 Star</div>
+    <div class="chip${activeStarFilter===2?' active':''}" onclick="setStarFilter(2)">★★ 2 Stars</div>
+    <div class="chip${activeStarFilter===3?' active':''}" onclick="setStarFilter(3)">★★★ 3 Stars</div>
+  `;
+}
+
+function setRegion(r) {
+  activeRegion = r;
+  renderFilterRow();
+  filterSearch(document.getElementById('search-input')?.value || '');
+}
+
+function setStarFilter(n) {
+  activeStarFilter = activeStarFilter === n ? null : n;
+  renderFilterRow();
+  filterSearch(document.getElementById('search-input')?.value || '');
+}
+
+function filterSearch(query) {
+  let results = RESTAURANTS;
+  if (query.trim()) {
+    const q = query.toLowerCase();
+    results = results.filter(r =>
+      r.name.toLowerCase().includes(q) ||
+      r.location.toLowerCase().includes(q) ||
+      r.region.toLowerCase().includes(q) ||
+      (CHEFS[r.chefId] && CHEFS[r.chefId].name.toLowerCase().includes(q))
+    );
+  }
+  if (activeRegion !== 'All') {
+    results = results.filter(r => r.region === activeRegion);
+  }
+  if (activeStarFilter !== null) {
+    results = results.filter(r => r.stars === activeStarFilter);
+  }
+  const label = document.getElementById('results-label');
+  if (label) label.textContent = `${results.length} restaurant${results.length !== 1 ? 's' : ''} found`;
+  renderRestaurantList('search-results', results);
+}
+
+// ─── Render Helpers ───────────────────────────────────────────────────────────
+function renderRestaurantList(containerId, list) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = list.map(r => `
+    <div class="restaurant-row" onclick="openRestaurant('${r.id}')">
+      <img src="${r.heroImageUrl}" alt="${r.name}">
+      <div class="info">
+        <div class="r-name">${r.name}</div>
+        <div class="r-loc">${r.location}</div>
+        <div class="r-exp">Chef-Led Experience Available</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span style="color:#BA9470;font-size:13px;letter-spacing:1px">${'★'.repeat(r.stars)}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="chevron"><path d="M9 18l6-6-6-6" stroke="#9B9189" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFeaturedCards() {
+  const featured = RESTAURANTS.slice(0, 4);
+  const el = document.getElementById('featured-scroll');
+  if (!el) return;
+  el.innerHTML = featured.map(r => `
+    <div class="featured-card" onclick="openRestaurant('${r.id}')">
+      <img src="${r.heroImageUrl}" alt="${r.name}">
+      <div class="overlay"></div>
+      <div class="card-content">
+        <div class="badges">
+          <div class="star-badge">${'★'.repeat(r.stars)} ${r.stars} Star${r.stars>1?'s':''}</div>
+          <div class="rosette-badge">◆ ${r.rosettes} AA</div>
+        </div>
+        <div class="card-name">${r.name}</div>
+        <div class="card-loc">${r.location}</div>
+        <div class="exp-tag">Chef-Led Experience</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderFeaturedCards();
+  renderRestaurantList('restaurant-list', RESTAURANTS);
+  renderRestaurantList('search-results', RESTAURANTS);
+  renderFilterRow();
+  renderBookings();
+  buildPreferences();
+
+  // Wire up preferences screen nav
+  const prefScreen = document.getElementById('screen-preferences');
+  if (prefScreen) {
+    prefScreen.addEventListener('transitionend', () => {
+      if (prefScreen.classList.contains('active')) buildPreferences();
+    });
+  }
+});
+</script>
+</body>
+</html>
