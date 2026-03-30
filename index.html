@@ -1363,64 +1363,16 @@ html, body { height: 100%; background: #1a1a1a; display: flex; align-items: cent
 </div>
 
 <script>
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const RESTAURANTS = [
-  { id:'gilded-thistle', name:'The Gilded Thistle', location:'Edinburgh, Scotland', region:'Edinburgh', stars:2, rosettes:4, about:"Nestled within a Georgian townhouse on Edinburgh's Royal Mile, The Gilded Thistle is a celebration of Scotland's extraordinary natural larder. Chef Iona Mackenzie's tasting menus are rooted in the seasons and the landscape — wild, precise, and deeply moving.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-gilded-thistle-kUasxgB9QWVuLvFyJiys5m.webp', chefId:'chef-iona', experienceId:'exp-wine-cellar', address:'14 Royal Mile, Edinburgh EH1 1TH', lat:55.9497, lng:-3.1922 },
-  { id:'ember-salt', name:'Ember & Salt', location:'Mayfair, London', region:'London', stars:3, rosettes:5, about:"Ember & Salt occupies a discreet townhouse on a quiet Mayfair mews. Marcus Vane's three-Michelin-star kitchen is a temple of restraint and precision — each dish a study in the extraordinary depth achievable from the finest British ingredients, treated with absolute respect.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-ember-salt-E2uveMfe4TaLSK2xiJ5h7i.webp', chefId:'chef-marcus', experienceId:'exp-kitchen-table', address:'7 Bruton Mews, Mayfair, London W1J 6LJ', lat:51.5074, lng:-0.1468 },
-  { id:'walled-garden', name:'The Walled Garden', location:'Cheshire, England', region:'Cheshire', stars:1, rosettes:3, about:"Set within a 300-acre private estate in the Cheshire countryside, The Walled Garden is Paul Heathcote MBE's most personal project. The restaurant occupies a restored Victorian glasshouse overlooking the estate's kitchen garden, which supplies much of what appears on the plate.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-walled-garden-SuR3wWKdzNBhhBCPf74ez8.webp', chefId:'chef-paul', experienceId:'exp-vineyard', address:'Arley Hall Estate, Northwich, Cheshire CW9 6NA', lat:53.2707, lng:-2.6985 },
-  { id:'obsidian', name:'Obsidian', location:'Manchester, England', region:'Manchester', stars:2, rosettes:4, about:"Obsidian is Manchester's most exciting fine dining destination. Ravi Chandra's two-Michelin-star kitchen occupies a dramatic black-marble space in the Northern Quarter, where his boundary-pushing cuisine draws on the bold flavours of his Indian heritage and the precision of classical French technique.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-obsidian-Yu7K9uQccigmrN3WaYf446.webp', chefId:'chef-ravi', experienceId:'exp-meat-cure', address:'12 Tib Street, Northern Quarter, Manchester M4 1SH', lat:53.4808, lng:-2.2426 },
-  { id:'tide-stone', name:'Tide & Stone', location:'Porthcurno, Cornwall', region:'Cornwall', stars:1, rosettes:3, about:"Perched on the cliffs above Porthcurno beach, Tide & Stone is one of the most dramatically situated restaurants in Britain. Cara Trevithick's daily-changing menu is dictated entirely by the sea and the coastline — a pure expression of Cornish terroir at its most elemental.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-tide-stone-Nb5SQgSPVV8AvdagV7Rip6.webp', chefId:'chef-cara', experienceId:'exp-foraging', address:'Porthcurno Cliff, St Levan, Cornwall TR19 6JX', lat:50.0379, lng:-5.6537 },
-  { id:'lumiere', name:'Lumière', location:'Bath, Somerset', region:'Bath', stars:2, rosettes:4, about:"Lumière occupies a Grade I listed Georgian townhouse overlooking Bath's famous Royal Crescent. Henri Dubois's two-Michelin-star kitchen is a masterclass in classical French technique applied to the finest West Country and Somerset produce — a restaurant of extraordinary elegance and ambition.", heroImageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-lumiere-c47yrNkT7zZK7vJurmBcN4.webp', chefId:'chef-henri', experienceId:'exp-cellar-cheese', address:'4 Royal Crescent, Bath BA1 2LR', lat:51.3837, lng:-2.3623 },
-];
+// ─── Data (loaded from data.json) ────────────────────────────────────────────
+// To point to a remote file, replace './data.json' with your raw GitHub URL:
+// e.g. 'https://raw.githubusercontent.com/YOUR-USERNAME/YOUR-REPO/main/data.json'
+const DATA_URL = './data.json';
 
-const CHEFS = {
-  'chef-iona': { id:'chef-iona', name:'Iona Mackenzie', title:'Head Chef', accolades:'2 Michelin Stars · 4 AA Rosettes', bio:"Born and raised in the Scottish Highlands, Iona Mackenzie developed her palate foraging the hillsides of Perthshire before training under legendary chefs in Paris and Copenhagen. Her cooking is a love letter to Scotland — wild, seasonal, and deeply personal. She returned to Edinburgh in 2018 to open The Gilded Thistle, which earned its first Michelin star within eighteen months and its second the following year.\n\nIona is known for her mastery of Scotland's finest larder: hand-dived scallops from the Isle of Skye, aged venison from the Cairngorms, and heritage vegetables from her own kitchen garden. Her tasting menus change with every season, sometimes every week, driven entirely by what is at its absolute best.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-iona-StawBsgbgypFpXDMKyT4YU.webp', restaurantId:'gilded-thistle' },
-  'chef-marcus': { id:'chef-marcus', name:'Marcus Vane', title:'Executive Chef & Founder', accolades:'3 Michelin Stars · 5 AA Rosettes', bio:"Marcus Vane is widely regarded as one of the most technically gifted chefs of his generation. Trained at the Ritz Paris and later at elBulli under Ferran Adrià, he returned to London in 2010 to open Ember & Salt in Mayfair — a restaurant that redefined modern British fine dining. The restaurant received three Michelin stars in 2016 and has held them every year since.\n\nHis cuisine is defined by restraint and precision: each dish contains no more than four principal ingredients, yet the depth of flavour achieved is extraordinary. Marcus is a fierce advocate for British produce, working exclusively with farmers and fishermen he has known for decades.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-marcus-XXgQdpqgdX78noGYBnzCtT.webp', restaurantId:'ember-salt' },
-  'chef-paul': { id:'chef-paul', name:'Paul Heathcote MBE', title:'Founder & Executive Chef', accolades:'1 Michelin Star · Former 2-Star Holder · MBE', bio:"Paul Heathcote MBE is one of the most celebrated figures in British gastronomy. He held two Michelin stars at his flagship restaurant in Longridge, Lancashire, for over a decade, and was instrumental in putting the North of England on the fine dining map at a time when London dominated the conversation.\n\nNow at The Walled Garden in Cheshire, Paul has returned to his roots — championing the extraordinary produce of the North West in a setting of breathtaking natural beauty. His cooking is generous, honest, and deeply rooted in the seasons, drawing on thirty years of relationships with local farmers, growers, and artisan producers.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-paul-CryFSyHhCGkT9nFkQgcWGz.webp', restaurantId:'walled-garden' },
-  'chef-ravi': { id:'chef-ravi', name:'Ravi Chandra', title:'Head Chef & Co-Founder', accolades:'2 Michelin Stars · 4 AA Rosettes', bio:"Ravi Chandra grew up between Mumbai and Manchester, and his cooking reflects both worlds — the bold, complex spicing of the subcontinent filtered through the precision and restraint of classical French technique. After stages at Noma and The Fat Duck, he opened Obsidian in Manchester's Northern Quarter in 2019.\n\nObsidian earned its first Michelin star in its debut year and its second in 2022, making Ravi the youngest chef in the North of England to hold two stars. His signature meat curing programme, developed over three years, is now one of the most talked-about culinary projects in the UK.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-ravi-mGeePar7swcAFdyKBwq6vt.webp', restaurantId:'obsidian' },
-  'chef-cara': { id:'chef-cara', name:'Cara Trevithick', title:'Head Chef & Owner', accolades:'1 Michelin Star · 3 AA Rosettes', bio:"Cara Trevithick was born in Newlyn, Cornwall, the daughter of a fisherman. She has spent her entire career celebrating the extraordinary larder of the Cornish coastline — from wild sea herbs and samphire to line-caught bass and hand-picked crab. After training in London and a formative year in Japan, she returned to Cornwall to open Tide & Stone on the cliffs above Porthcurno.\n\nHer cooking is elemental and deeply connected to place. The menu changes daily based on what the boats bring in and what she finds on her morning foraging walks along the coastal path.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-iona-StawBsgbgypFpXDMKyT4YU.webp', restaurantId:'tide-stone' },
-  'chef-henri': { id:'chef-henri', name:'Henri Dubois', title:'Head Chef', accolades:'2 Michelin Stars · 4 AA Rosettes', bio:"Henri Dubois arrived in Bath from Lyon in 2012, drawn by the city's Georgian grandeur and its proximity to some of England's finest farmland. A classically trained French chef who spent a decade at Paul Bocuse's restaurant in Lyon, Henri brought with him a rigorous devotion to classical technique and an obsession with the finest raw ingredients.\n\nAt Lumière, his cooking is a dialogue between France and England — Bresse-style preparations applied to Somerset duck, Burgundian wine pairings alongside West Country cheeses, and a cellar that is widely regarded as one of the finest in the South West.", imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/chef-marcus-XXgQdpqgdX78noGYBnzCtT.webp', restaurantId:'lumiere' },
-};
-
-const EXPERIENCES = {
-  'exp-wine-cellar': { id:'exp-wine-cellar', name:'Private Wine Cellar Experience', tagline:'Descend into history', description:"Beneath The Gilded Thistle lies a 17th-century vaulted stone cellar housing over 2,000 bottles personally selected by Iona Mackenzie and her head sommelier. This exclusive evening begins with a candlelit tour of the cellar before settling at a long oak tasting table for a guided flight of six exceptional wines, each paired with a small plate created for the occasion.", includes:['Guided cellar tour','Six-wine tasting flight','Paired small plates','Signed wine notes','Private dining for up to 8 guests'], duration:'3 hours', groupSize:'Up to 8 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-wine-cellar-Ub5y4RABqr9gqrUz6m2Fgi.webp' },
-  'exp-kitchen-table': { id:'exp-kitchen-table', name:"Chef's Kitchen Table", tagline:'At the heart of everything', description:"The most intimate dining experience in London. A single table for four, set within the working kitchen of Ember & Salt, where Marcus Vane and his team cook around you. You will witness every element of the tasting menu being prepared, with Marcus pausing to explain the provenance of each ingredient and the thinking behind each dish. This is not a demonstration — it is a conversation.", includes:['12-course tasting menu','Kitchen tour & chef commentary','Paired wine flight','Signed menu keepsake','Exclusive for 2–4 guests'], duration:'4 hours', groupSize:'2–4 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-kitchen-table-BG727XLaXoTgVMevufASHA.webp' },
-  'exp-vineyard': { id:'exp-vineyard', name:'Vineyard Tour & Harvest Lunch', tagline:'From vine to table', description:"Set within the grounds of a private Cheshire estate, The Walled Garden's vineyard produces a small quantity of exceptional English sparkling wine each year. Paul Heathcote MBE leads this exclusive morning tour through the vines, followed by a long harvest lunch in the walled garden itself — a celebration of the estate's produce at its seasonal peak.", includes:['Guided vineyard tour with Paul','English sparkling wine tasting','Five-course harvest lunch','Estate produce hamper to take home','Up to 12 guests'], duration:'Half day (5 hours)', groupSize:'Up to 12 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-walled-garden-SuR3wWKdzNBhhBCPf74ez8.webp' },
-  'exp-meat-cure': { id:'exp-meat-cure', name:'Meat Cure Room Experience', tagline:'The art of patience', description:"Ravi Chandra's curing programme is one of the most ambitious in British fine dining. This exclusive experience takes you behind the pass and into the curing room itself, where Ravi explains the three-year journey of each cut — from selection and preparation through salting, smoking, and ageing. The evening concludes with a private dinner built entirely around the curing programme.", includes:['Private curing room tour','Guided tasting of cured meats','Six-course dinner by Ravi','Paired natural wine flight','Exclusive for 2–6 guests'], duration:'4 hours', groupSize:'2–6 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-meat-cure-3Mv8qxsijhy3Cg59fDmf8R.webp' },
-  'exp-foraging': { id:'exp-foraging', name:'Coastal Foraging Experience', tagline:'Walk the wild edge', description:"Join Cara Trevithick on her morning foraging walk along the Porthcurno coastal path, gathering the sea herbs, samphire, and coastal plants that will appear on your plate that evening. The walk is followed by a return to Tide & Stone for a private lunch built entirely from what you have foraged, paired with wines selected by Cara to complement the coastal terroir.", includes:['Guided coastal foraging walk','Foraging kit & guide book','Private lunch from foraged ingredients','Wine pairing','Up to 6 guests'], duration:'5 hours', groupSize:'Up to 6 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/restaurant-tide-stone-Nb5SQgSPVV8AvdagV7Rip6.webp' },
-  'exp-cellar-cheese': { id:'exp-cellar-cheese', name:'Cellar & Cheese Cave Tour', tagline:'A journey through terroir', description:"Beneath Lumière lies one of the finest wine cellars in the South West, alongside a dedicated cheese cave where Henri Dubois ages a selection of exceptional British and French cheeses. This private evening begins with a candlelit tour of both spaces, guided by Henri himself, before moving to the private dining room for a five-course dinner with an extraordinary cheese course and paired wines from the cellar.", includes:['Wine cellar & cheese cave tour','Five-course dinner','Cheese course with 12 selections','Paired wine flight','Exclusive for 2–8 guests'], duration:'3.5 hours', groupSize:'2–8 guests', imageUrl:'https://d2xsxph8kpxj0f.cloudfront.net/310519663435754638/UPQo79gc4hdMg4MgycmTXw/experience-wine-cellar-Ub5y4RABqr9gqrUz6m2Fgi.webp' },
-};
-
-const REVIEWS = {
-  'gilded-thistle': [
-    { pub:'The Guardian', logo:'TG', quote:"Iona Mackenzie has created something extraordinary in Edinburgh. This is Scottish cooking at its most honest and most thrilling — wild, seasonal, and deeply moving.", author:'Grace Dent', year:'2025', rating:'★★★★★' },
-    { pub:'The Times', logo:'TT', quote:"The best meal I have eaten in Scotland in twenty years. Mackenzie's tasting menu is a masterclass in restraint and beauty.", author:'Giles Coren', year:'2025', rating:'★★★★★' },
-  ],
-  'ember-salt': [
-    { pub:'Financial Times', logo:'FT', quote:"Marcus Vane is operating at a level that very few chefs in the world can match. Ember & Salt is not merely a great restaurant — it is a singular experience.", author:'Tim Hayward', year:'2025', rating:'★★★★★' },
-    { pub:'The Observer', logo:'OB', quote:"Three stars, and every one of them earned. Vane's kitchen is the most technically accomplished in London right now.", author:'Jay Rayner', year:'2024', rating:'★★★★★' },
-  ],
-  'walled-garden': [
-    { pub:'The Daily Telegraph', logo:'DT', quote:"Paul Heathcote has lost none of his brilliance. The Walled Garden is a triumph — generous, seasonal, and rooted in the very best of the North West.", author:'William Sitwell', year:'2025', rating:'★★★★' },
-  ],
-  'obsidian': [
-    { pub:'The Guardian', logo:'TG', quote:"Ravi Chandra is doing something genuinely new. Obsidian is the most exciting restaurant to open in Manchester in a decade.", author:'Grace Dent', year:'2024', rating:'★★★★★' },
-    { pub:'Michelin Guide', logo:'MG', quote:"Bold, precise, and utterly original. Chandra's curing programme alone is worth the journey to Manchester.", author:'Michelin Inspector', year:'2025', rating:'★★' },
-  ],
-  'tide-stone': [
-    { pub:'The Sunday Times', logo:'ST', quote:"The most dramatically situated restaurant in Britain, and the food matches the view. Cara Trevithick is a chef of rare gifts.", author:"Marina O'Loughlin", year:'2025', rating:'★★★★★' },
-  ],
-  'lumiere': [
-    { pub:'The Times', logo:'TT', quote:"Henri Dubois has brought the soul of Lyon to Bath, and the result is magnificent. Lumière is one of the finest French restaurants in England.", author:'Giles Coren', year:'2024', rating:'★★★★★' },
-  ],
-};
-
-const BOOKINGS = [
-  { id:'b1', restaurantId:'ember-salt', expName:"Chef's Kitchen Table", date:'14 April 2026', time:'7:00 PM', guests:2, status:'confirmed', isPast:false },
-  { id:'b2', restaurantId:'gilded-thistle', expName:'Private Wine Cellar Experience', date:'2 May 2026', time:'6:30 PM', guests:4, status:'confirmed', isPast:false },
-  { id:'b3', restaurantId:'obsidian', expName:'Meat Cure Room Experience', date:'18 January 2026', time:'7:30 PM', guests:2, status:'completed', isPast:true },
-  { id:'b4', restaurantId:'walled-garden', expName:'Vineyard Tour & Harvest Lunch', date:'9 October 2025', time:'11:00 AM', guests:6, status:'completed', isPast:true },
-];
+let RESTAURANTS = [];
+let CHEFS = {};
+let EXPERIENCES = {};
+let REVIEWS = {};
+let BOOKINGS = [];
 
 // ─── Navigation State ─────────────────────────────────────────────────────────
 let screenHistory = ['screen-onboarding'];
@@ -2037,7 +1989,7 @@ function renderFeaturedCards() {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   renderFeaturedCards();
   renderRestaurantList('restaurant-list', RESTAURANTS);
   renderRestaurantList('search-results', RESTAURANTS);
@@ -2052,6 +2004,32 @@ document.addEventListener('DOMContentLoaded', () => {
       if (prefScreen.classList.contains('active')) buildPreferences();
     });
   }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetch(DATA_URL)
+    .then(r => {
+      if (!r.ok) throw new Error('Failed to load data.json: ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      RESTAURANTS = data.restaurants || [];
+      CHEFS = data.chefs || {};
+      EXPERIENCES = data.experiences || {};
+      REVIEWS = data.reviews || {};
+      BOOKINGS = data.bookings || [];
+      initApp();
+    })
+    .catch(err => {
+      console.error(err);
+      // Show a visible error inside the phone shell so it is obvious during development
+      const stack = document.getElementById('screen-stack');
+      if (stack) stack.innerHTML = `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:#FDFAF5;gap:12px">
+        <div style="font-size:32px">⚠️</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:#1E120E;text-align:center">Could not load restaurant data</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#9B9189;text-align:center;line-height:1.5">${err.message}<br><br>Make sure <strong>data.json</strong> is in the same folder as <strong>index.html</strong>, or update <code>DATA_URL</code> to your GitHub raw URL.</div>
+      </div>`;
+    });
 });
 </script>
 </body>
