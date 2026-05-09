@@ -38,7 +38,7 @@
       "stars": 1,
       "rosettes": 3,
       "about": "Tucked into a warmly renovated former pub on a quiet lane in the West Lancashire village of Aughton, sō-lō is the long-awaited first solo venture of one of Britain's most decorated chefs. Tim Allen's tasting menus are a study in understated luxury — the informality of the surroundings belies the extraordinary mastery at work in the open kitchen. Seasonal produce from local farmers and the restaurant's own growing beds arrives daily, and every dish is a precise, flavour-driven expression of the land around it. It is exactly the kind of restaurant that makes people travel — and stay.",
-      "heroImageUrl": null,
+      "heroImageUrl": "https://www.restaurantsolo.co.uk/wp-content/uploads/2024/04/restraunt-inside.jpg",
       "chefId": "chef-tim-allen",
       "experienceId": "exp-solo-chefs-table",
       "address": "17 Town Green Lane, Aughton, Ormskirk L39 6SE",
@@ -311,7 +311,7 @@
       "title": "Chef Owner",
       "accolades": "1 Michelin Star · 3 AA Rosettes",
       "bio": "Born in Huddersfield, Tim Allen has spent thirty years earning Michelin stars at some of England's finest restaurants — at Whatley Manor alongside Martin Burge, at the Wild Rabbit in Kingham, at Launceston Place in London, and at the Flitch of Bacon in Essex. He has been awarded stars at four separate establishments and competed on the BBC's Great British Menu.\n\nIn 2021, Tim opened sō-lō in the Lancashire village of Aughton — his first truly solo venture, and the culmination of everything he has learned. The restaurant was awarded its Michelin star in 2023, just seventeen months after opening. His cooking is contemporary, seasonally precise and deceptively relaxed, with each dish designed to let exceptional produce — much of it grown on the premises or sourced from trusted local farms — speak with absolute clarity.",
-      "imageUrl": null,
+      "imageUrl": "https://www.restaurantsolo.co.uk/wp-content/uploads/2024/04/tim-allen-so-lo.jpg",
       "restaurantId": "solo"
     },
     "chef-tom-kitchin": {
