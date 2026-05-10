@@ -311,7 +311,7 @@
       "title": "Chef Owner",
       "accolades": "1 Michelin Star · 3 AA Rosettes",
       "bio": "Born in Huddersfield, Tim Allen has spent thirty years earning Michelin stars at some of England's finest restaurants — at Whatley Manor alongside Martin Burge, at the Wild Rabbit in Kingham, at Launceston Place in London, and at the Flitch of Bacon in Essex. He has been awarded stars at four separate establishments and competed on the BBC's Great British Menu.\n\nIn 2021, Tim opened sō-lō in the Lancashire village of Aughton — his first truly solo venture, and the culmination of everything he has learned. The restaurant was awarded its Michelin star in 2023, just seventeen months after opening. His cooking is contemporary, seasonally precise and deceptively relaxed, with each dish designed to let exceptional produce — much of it grown on the premises or sourced from trusted local farms — speak with absolute clarity.",
-      "imageUrl": "https://www.restaurantsolo.co.uk/wp-content/uploads/2024/04/tim-allen-so-lo.jpg",
+      "imageUrl": "https://www.lancashirebusinessview.co.uk/images/720x480/1500x788-0x50/2025/2024/novemberimages/timallen.jpg?1730451222",
       "restaurantId": "solo"
     },
     "chef-tom-kitchin": {
@@ -365,7 +365,7 @@
       "title": "Chef Patron & Co-Founder",
       "accolades": "1 Michelin Star · 3 AA Rosettes",
       "bio": "Jeff Galvin and his brother Chris are among the most admired figures in British French cooking — Essex-born chefs whose combined career spans more than six decades and includes formative years at The Savoy, The Ritz, L'Escargot, The Lanesborough and The Wolseley. Together, they have built one of London's most beloved restaurant groups, guided always by the same conviction: that classical French cuisine, executed with skill and served without formality, is one of life's great pleasures.\n\nAt Galvin La Chapelle, Jeff leads the kitchen in a setting of jaw-dropping drama — the soaring vaulted ceiling of a Victorian school chapel framing food that is equally ambitious. The Michelin star arrived in 2011, just a year after opening, and has been held with quiet consistency ever since. Brother David sources the produce each morning, bringing the family ethos full circle from market to plate.",
-      "imageUrl": "https://www.thestaffcanteen.com/images/thumbs/public/js/tinymce/plugins/moxiemanager/data/files/1%20Michelin%20Star/Jeff%20Galvin/Jeff%20Galvin.jpg",
+      "imageUrl": "https://foodandtravel.com/assets/img/content/afterhours/jg1.jpg",
       "restaurantId": "galvin-la-chapelle"
     },
     "chef-michael-wignall": {
@@ -956,5 +956,36 @@
       }
     ]
   },
-  "bookings": []
+  "bookings": [
+    {
+      "id": "jpy8P1dsO6",
+      "restaurantId": "opheem",
+      "expName": "The Coal Kitchen Table",
+      "date": "2026-06-05",
+      "time": "19:00",
+      "guests": 3,
+      "status": "confirmed",
+      "isPast": false
+    },
+    {
+      "id": "iSfFDDMqoE",
+      "restaurantId": "three-fishes",
+      "expName": "The Kitchen Garden Morning",
+      "date": "2026-07-10",
+      "time": "18:30",
+      "guests": 2,
+      "status": "confirmed",
+      "isPast": false
+    },
+    {
+      "id": "udQ0QjkBvo",
+      "restaurantId": "scran-scallie",
+      "expName": "The Sunday Roast Table",
+      "date": "2026-05-05",
+      "time": "19:30",
+      "guests": 2,
+      "status": "confirmed",
+      "isPast": true
+    }
+  ]
 }
